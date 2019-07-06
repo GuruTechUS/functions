@@ -10,27 +10,29 @@ admin.initializeApp(functions.config().firebase);
 //  response.send("Hello from Firebase!");
 // });
 
-exports.newUpdateReceived = functions.firestore.document('notifications/{notificationId}').onCreate(event => {
-    var notificationData = event.data.data();
+exports.newUpdateReceived = functions.firestore.document('notifications/{notificationId}').onCreate((event, context) => {
+    var notificationData = event.data(); //.data.data();
     console.log(notificationData);
     //var message = "New Todo Added : " + newValue.title;
-    //pushMessage(message);
+    pushMessage(notificationData);
     return true;
 });
 
 // Function to push notification to a topic.
-function pushMessage(message) {
+function pushMessage(notificationData) {
     var payload = {
         notification: {
-            title: message,
+            title: notificationData["title"],
+            body: notificationData["body"],
         }
     };
 
-    admin.messaging().sendToTopic("notifications", payload)
-        .then(function (response) {
+    admin.messaging().sendToTopic(notificationData["topic"], payload)
+        .then((response) => {
             console.log("Successfully sent message:", response);
+            return null;
         })
-        .catch(function (error) {
+        .catch((error) => {
             console.log("Error sending message:", error);
         });
 }
