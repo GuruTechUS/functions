@@ -10,6 +10,7 @@ admin.initializeApp(functions.config().firebase);
 //  response.send("Hello from Firebase!");
 // });
 
+
 exports.newUpdateReceived = functions.firestore.document('notifications/{notificationId}').onCreate((event, context) => {
     var notificationData = event.data(); //.data.data();
     console.log(notificationData);
@@ -22,7 +23,11 @@ exports.newUpdateReceived = functions.firestore.document('notifications/{notific
 function pushMessage(notificationData) {
     var payload = {
         notification: {
-            title: notificationData["title"],
+            title:  (
+                        (notificationData["title"] != null && notificationData["title"] != "") ?
+                            (notificationData["title"]+": "):""
+                    ) + 
+                    notificationData["event"],
             body: notificationData["body"],
         }
     };
